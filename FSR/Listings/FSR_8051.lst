@@ -1,0 +1,88 @@
+A51 MACRO ASSEMBLER  FSR_8051                                                             03/25/2026 11:44:34 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.7.0
+OBJECT MODULE PLACED IN .\Objects\FSR_8051.obj
+ASSEMBLER INVOKED BY: C:\Keil_v5\C51\BIN\A51.EXE FSR_8051.asm SET(SMALL) DEBUG PRINT(.\Listings\FSR_8051.lst) OBJECT(.\O
+                      bjects\FSR_8051.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG 0000H
+                       2     
+                       3     ; Port definitions
+  0090                 4     ADC_DATA   EQU P1
+  00B6                 5     WR_PIN     EQU P3.6
+  00B7                 6     RD_PIN     EQU P3.7
+  00B2                 7     INTR_PIN   EQU P3.2
+  00A0                 8     BUZZER     EQU P2.0
+                       9     
+0000                  10     START:
+0000 7590FF           11         MOV P1, #0FFH        ; Make P1 input
+0003 C2A0             12         CLR BUZZER           ; Buzzer OFF
+                      13     
+0005                  14     MAIN:
+0005 1117             15         ACALL READ_ADC       ; Get FSR value
+0007 E8               16         MOV A, R0            ; Move ADC value to A
+                      17     
+0008 B43202           18         CJNE A, #50, CHECK   ; Compare with threshold (adjust)
+000B 80F8             19         SJMP MAIN
+                      20     
+000D                  21     CHECK:
+000D 4004             22         JC NO_PRESSURE       ; If less than threshold
+                      23     
+000F                  24     PRESSURE:
+000F D2A0             25         SETB BUZZER          ; Pressure detected
+0011 80F2             26         SJMP MAIN
+                      27     
+0013                  28     NO_PRESSURE:
+0013 C2A0             29         CLR BUZZER
+0015 80EE             30         SJMP MAIN
+                      31     
+                      32     ;-----------------------------------
+                      33     ; ADC Reading Subroutine
+                      34     ;-----------------------------------
+0017                  35     READ_ADC:
+0017 C2B6             36         CLR WR_PIN           ; Start conversion
+0019 D2B6             37         SETB WR_PIN
+                      38     
+001B                  39     WAIT_INTR:
+001B 20B2FD           40         JB INTR_PIN, WAIT_INTR  ; Wait until conversion complete
+                      41     
+001E C2B7             42         CLR RD_PIN           ; Enable ADC output
+0020 E590             43         MOV A, ADC_DATA      ; Read digital value
+0022 F8               44         MOV R0, A
+0023 D2B7             45         SETB RD_PIN          ; Disable read
+                      46     
+0025 22               47         RET
+                      48     
+                      49     END
+A51 MACRO ASSEMBLER  FSR_8051                                                             03/25/2026 11:44:34 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+ADC_DATA . . . . .  D ADDR   0090H   A   
+BUZZER . . . . . .  B ADDR   00A0H.0 A   
+CHECK. . . . . . .  C ADDR   000DH   A   
+INTR_PIN . . . . .  B ADDR   00B0H.2 A   
+MAIN . . . . . . .  C ADDR   0005H   A   
+NO_PRESSURE. . . .  C ADDR   0013H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+PRESSURE . . . . .  C ADDR   000FH   A   
+RD_PIN . . . . . .  B ADDR   00B0H.7 A   
+READ_ADC . . . . .  C ADDR   0017H   A   
+START. . . . . . .  C ADDR   0000H   A   
+WAIT_INTR. . . . .  C ADDR   001BH   A   
+WR_PIN . . . . . .  B ADDR   00B0H.6 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)
